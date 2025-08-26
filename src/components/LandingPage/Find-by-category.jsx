@@ -31,8 +31,8 @@ export default function FindBySpeciality() {
     <section className="py-20 px-4">
       <div className="container mx-auto">
         <motion.div className="text-center mb-16" {...fadeInUp}>
-          <h2 className="text-4xl font-serif font-bold text-foreground mb-4">Find by Speciality</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="md:text-4xl text-3xl font-serif font-bold text-foreground mb-4">Find by Speciality</h2>
+          <p className="md:text-xl text-md text-muted-foreground max-w-2xl mx-auto">
             Simply browse through our extensive list of trusted doctors, schedule your appointment hassle-free.
           </p>
         </motion.div>

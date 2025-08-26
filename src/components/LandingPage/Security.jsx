@@ -62,12 +62,12 @@ export default function TrustAndCTASection() {
                 Blockchain Security
               </motion.div>
               
-              <h2 className="text-5xl lg:text-6xl text-center font-serif font-bold text-gray-900 leading-tight">
+              <h2 className="text-3xl md:text-5xl text-center font-serif font-bold text-gray-900 leading-tight">
                 Built on Trust & 
                 <span className="text-[#05696b]"> Security</span>
               </h2>
               
-              <p className="text-xl text-center w-[80%] mx-auto  text-gray-600 leading-relaxed">
+              <p className="md:text-xl text-md text-center md:w-[80%] mx-auto  text-gray-600 leading-relaxed">
                 Every healthcare professional on MedFi is verified through our rigorous blockchain-based registry
                 system, ensuring you receive care from legitimate, qualified providers.
               </p>
@@ -77,7 +77,7 @@ export default function TrustAndCTASection() {
               {features.map((feature, index) => (
                 <motion.div 
                   key={index} 
-                  className="flex  justify-cente w-[50%] mx-auto gap-4 group"
+                  className="flex  md:w-[50%] mx-auto gap-4 group"
                   variants={childVariant}
                   whileHover={{ x: 8 }}
                   transition={{ duration: 0.3 }}
@@ -100,20 +100,20 @@ export default function TrustAndCTASection() {
         <motion.div className="text-center space-y-8" {...fadeInUp}>
           <div className="space-y-6 max-w-4xl mx-auto">
             
-            <h2 className="text-5xl lg:text-6xl font-serif font-bold text-gray-900 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 leading-tight">
               Ready to Experience 
               <br />
               <span className="text-[#05696b]">Decentralized Healthcare?</span>
             </h2>
             
-            <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+            <p className="md:text-xl text-md text-gray-600 leading-relaxed max-w-3xl mx-auto">
               Join thousands of patients and healthcare professionals who trust MedFi for secure, transparent medical
               services powered by blockchain technology.
             </p>
           </div>
 
           <motion.div 
-            className="flex flex-col sm:flex-row gap-6 justify-center pt-8"
+            className="flex flex-col sm:flex-row gap-6 justify-center pt-3 md:pt-8"
             variants={staggerChildren}
           >
             <motion.div variants={childVariant}>
@@ -140,7 +140,7 @@ export default function TrustAndCTASection() {
 
           {/* Trust Indicators */}
           <motion.div 
-            className="flex flex-wrap justify-center items-center gap-8 pt-12 opacity-60"
+            className="flex flex-wrap justify-center items-center gap-8 pt-6 md:pt-12 opacity-60"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 0.6, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}

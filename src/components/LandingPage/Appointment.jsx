@@ -15,7 +15,7 @@ export default function AppointmentBookingSection() {
   }
 
   return (
-    <section className="py-10 w-[90%] mx-auto rounded-2xl text-white bg-gradient-to-br from-primary/5 to-accent/5 relative overflow-hidden">
+    <section className="py-10 md:w-[90%] mx-auto md:rounded-2xl text-white bg-gradient-to-br from-primary/5 to-accent/5 relative overflow-hidden">
       
       <div className="absolute inset-0 -z-10">
         <video autoPlay muted loop playsInline className="w-full h-full object-cover">
@@ -26,7 +26,7 @@ export default function AppointmentBookingSection() {
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent" />
       </div>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4 md:px-0">
         <motion.div
           className=" md:w-[90%] mx-auto"
           initial="initial"
@@ -36,12 +36,12 @@ export default function AppointmentBookingSection() {
           {/* Left side - Content */}
           <motion.div variants={fadeInUp} className="space-y-8 flex justify-between items-center md:flex-row flex-col">
             <div>
-              <h2 className="text-5xl font-serif font-bold text-white mb-6 leading-tight">
+              <h2 className="md:text-5xl text-3xl font-serif font-bold text-white mb-6 leading-tight">
                Book Appointment
                 <br />
                 <span className="">With 100+ Trusted Doctors</span>
               </h2>
-              <p className="text-xl text-gray-200 mb-8 leading-relaxed">
+              <p className="md:text-xl text-md text-gray-200 mb-8 leading-relaxed">
                 We know how large objects will act, but things on a small scale.
               </p>
 
@@ -56,7 +56,7 @@ export default function AppointmentBookingSection() {
             </div>
 
             {/* Appointment Form */}
-            <Card className="border-border shadow-lg w-[40%] py-6">
+            <Card className="border-border shadow-lg md:w-[40%] py-6">
               <CardHeader>
                 <CardTitle className="text-2xl font-serif text-center">Book Appointment</CardTitle>
               </CardHeader>
