@@ -1,15 +1,50 @@
 "use client"
+import { useState } from "react"
+import { ConnectWallet, useAddress, useUser, useDisconnect } from "@thirdweb-dev/react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Heart, Menu, X } from "lucide-react"
-import { useState } from "react"
+import { Menu, X, LogOut } from "lucide-react"
 import Image from "next/image"
+import OnboardingModal from "@/components/Onboarding/Onboarding"
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboarded, setOnboarded] = useState(false)
+  const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
+  const address = useAddress()
+  const { user } = useUser()
+  const disconnect = useDisconnect()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const handleGetStarted = () => {
+    setShowOnboarding(true)
+    setIsMobileMenuOpen(false)
+  }
+
+  const handleGoToDashboard = () => {
+    setShowOnboarding(true)
+  }
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect()
+      setOnboarded(false)
+      setHasShownOnboarding(false)
+      setShowOnboarding(false)
+    } catch (error) {
+      console.error("Error disconnecting:", error)
+    }
+  }
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false)
+    setOnboarded(true)
+    setHasShownOnboarding(true)
+    // Optionally persist onboarding status here (e.g., localStorage)
   }
 
   const navItems = [
@@ -54,19 +89,44 @@ export default function Header() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0"
-            >
-              Get Started
-            </Button>
-            <Button 
-              size="lg" 
-              className="hover:scale-105 hover:bg-[#05696b]/90 hover:shadow-lg bg-[#05696b] text-white transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0"
-            >
-              Connect Wallet
-            </Button>
+            {address ? (
+              <>
+                <Button 
+                  size="lg" 
+                  className="hover:scale-105 hover:bg-[#05696b]/90 hover:shadow-lg bg-[#05696b] text-white transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0"
+                  onClick={handleGoToDashboard}
+                >
+                  Go to Dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="hover:bg-red-100 hover:scale-105 hover:shadow-lg bg-white text-red-600 border-red-200 transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0 flex items-center gap-2"
+                  onClick={handleDisconnect}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Disconnect
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0"
+                  onClick={handleGetStarted}
+                >
+                  Get Started
+                </Button>
+                <ConnectWallet
+                  theme="light"
+                  className="!bg-[#05696b] !text-white !py-2 !px-4 !rounded-md !hover:bg-[#05696b]/90"
+                  btnTitle="Connect Wallet"
+                  modalTitle="Login to MedFi"
+                  auth={{ loginOptional: false }}
+                />
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -130,21 +190,50 @@ export default function Header() {
                 animate={isMobileMenuOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
               >
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Get Started
-                </Button>
-                <Button 
-                  size="lg"
-                  className="w-full hover:scale-105 hover:bg-[#05696b]/90 hover:shadow-lg bg-[#05696b] text-white transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Connect Wallet
-                </Button>
+                {address ? (
+                  <>
+                    <Button 
+                      size="lg"
+                      className="w-full hover:scale-105 hover:bg-[#05696b]/90 hover:shadow-lg bg-[#05696b] text-white transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        window.location.href = user?.isDoctor ? "/doctor-dashboard" : "/patient-dashboard"
+                      }}
+                    >
+                      Go to Dashboard
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full hover:bg-red-100 hover:scale-105 hover:shadow-lg bg-white text-red-600 border-red-200 transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0 flex items-center justify-center gap-2"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        handleDisconnect()
+                      }}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Disconnect
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      className="w-full hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
+                      onClick={handleGetStarted}
+                    >
+                      Get Started
+                    </Button>
+                    <ConnectWallet
+                      theme="light"
+                      className="w-full !bg-[#05696b] !text-white !py-2 !px-4 !rounded-md !hover:bg-[#05696b]/90"
+                      btnTitle="Connect Wallet"
+                      modalTitle="Login to MedFi"
+                      auth={{ loginOptional: false }}
+                    />
+                  </>
+                )}
               </motion.div>
             </nav>
           </div>
@@ -162,6 +251,12 @@ export default function Header() {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
+
+      {/* Onboarding Modal */}
+      <OnboardingModal 
+        isOpen={showOnboarding} 
+        onClose={handleOnboardingClose} 
+      />
     </>
   )
 }

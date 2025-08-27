@@ -51,7 +51,7 @@ export default function HeroSection() {
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-30" />
               <Input
                 placeholder="Search Doctors, Treatments, Specialists..."
-                className="pl-12 py-4 md:text-lg text-sm bg-white/95 backdrop-blur-sm border-white/20 text-foreground"
+                className="pl-12 py-4 md:text-md text-sm bg-white/95 backdrop-blur-sm border-white/20 text-foreground"
               />
             </div>
           </div>
