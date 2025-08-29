@@ -130,7 +130,7 @@ export default function TrustAndCTASection() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="group text-lg px-10 py-4 bg-[#edb23d] hover:bg-[#edb23d]/90 text-gray-900 border-[#edb23d] shadow-lg hover:shadow-xl transition-all duration-400 hover:-translate-y-1 hover:scale-105"
+                className="group text-lg px-10 py-4 bg-[#e8b43a] hover:bg-[#e8b43a]/90 text-gray-900 border-[#e8b43a] shadow-lg hover:shadow-xl transition-all duration-400 hover:-translate-y-1 hover:scale-105"
               >
                 Join as Professional
                 <Users className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform duration-300" />

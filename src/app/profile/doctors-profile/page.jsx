@@ -1,11 +1,12 @@
 "use client"
 import { useState } from "react"
-import { useAddress } from "@thirdweb-dev/react"
+import { useActiveAccount } from "thirdweb/react"
 import { Button } from "@/components/ui/button"
 import { User, Calendar, FileText, Shield, Clock } from "lucide-react"
 
 export default function DoctorDashboard() {
-  const address = useAddress()
+  const activeAccount = useActiveAccount()
+  const address = activeAccount?.address
   const [activeTab, setActiveTab] = useState('overview')
   const [isVerified, setIsVerified] = useState(false)
 

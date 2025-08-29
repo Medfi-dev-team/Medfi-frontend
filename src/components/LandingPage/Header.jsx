@@ -1,20 +1,22 @@
 "use client"
 import { useState } from "react"
-import { ConnectWallet, useAddress, useUser, useDisconnect } from "@thirdweb-dev/react"
+import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from "thirdweb/react"
+import { inAppWallet, createWallet } from "thirdweb/wallets"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Menu, X, LogOut } from "lucide-react"
 import Image from "next/image"
 import OnboardingModal from "@/components/Onboarding/Onboarding"
+import { client } from "@/app/providers"
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboarded, setOnboarded] = useState(false)
   const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
-  const address = useAddress()
-  const { user } = useUser()
-  const disconnect = useDisconnect()
+  const activeAccount = useActiveAccount()
+  const activeWallet = useActiveWallet()
+  const { disconnect } = useDisconnect()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -31,7 +33,7 @@ export default function Header() {
 
   const handleDisconnect = async () => {
     try {
-      await disconnect()
+      await disconnect(activeWallet || undefined)
       setOnboarded(false)
       setHasShownOnboarding(false)
       setShowOnboarding(false)
@@ -44,7 +46,7 @@ export default function Header() {
     setShowOnboarding(false)
     setOnboarded(true)
     setHasShownOnboarding(true)
-    // Optionally persist onboarding status here (e.g., localStorage)
+
   }
 
   const navItems = [
@@ -62,7 +64,7 @@ export default function Header() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
+        <div className="container mx-auto px-4  lg:px-0 py-2 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="MedFi Logo" width={50} height={50} className="w-12 sm:w-16" />
@@ -89,7 +91,7 @@ export default function Header() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {address ? (
+            {activeAccount ? (
               <>
                 <Button 
                   size="lg" 
@@ -110,20 +112,22 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-1 active:scale-105 active:translate-y-0"
-                  onClick={handleGetStarted}
-                >
-                  Get Started
-                </Button>
-                <ConnectWallet
+               
+                <ConnectButton 
+                  client={client}
                   theme="light"
-                  className="!bg-[#05696b] !text-white !py-2 !px-4 !rounded-md !hover:bg-[#05696b]/90"
-                  btnTitle="Connect Wallet"
-                  modalTitle="Login to MedFi"
-                  auth={{ loginOptional: false }}
+                  modalTitle= "Login to MedFi"
+                  connectButton={{
+                    label: "Connect Wallet",
+                    className: "w-full !rounded-md",
+                    style: { backgroundColor: "#05696b", color: "#ffffff", padding: "0rem" }
+                  }}
+                  wallets={[
+                    inAppWallet({ auth: { options: ["email", "google", "apple"] } }),
+                    createWallet("io.metamask"),
+                    createWallet("com.coinbase.wallet"),
+                    createWallet("me.rainbow")
+                  ]}
                 />
               </>
             )}
@@ -190,14 +194,14 @@ export default function Header() {
                 animate={isMobileMenuOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
               >
-                {address ? (
+                {activeAccount ? (
                   <>
                     <Button 
                       size="lg"
                       className="w-full hover:scale-105 hover:bg-[#05696b]/90 hover:shadow-lg bg-[#05696b] text-white transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
                       onClick={() => {
                         setIsMobileMenuOpen(false)
-                        window.location.href = user?.isDoctor ? "/doctor-dashboard" : "/patient-dashboard"
+                        handleGoToDashboard()
                       }}
                     >
                       Go to Dashboard
@@ -217,20 +221,21 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Button 
-                      variant="outline" 
-                      size="lg"
-                      className="w-full hover:bg-[#edb23d]/90 hover:scale-105 hover:shadow-lg bg-[#edb23d] text-black border-[#edb23d] transition-all duration-400 ease-out hover:-translate-y-0.5 active:scale-100 active:translate-y-0"
-                      onClick={handleGetStarted}
-                    >
-                      Get Started
-                    </Button>
-                    <ConnectWallet
+                    
+                    <ConnectButton client={client}
                       theme="light"
-                      className="w-full !bg-[#05696b] !text-white !py-2 !px-4 !rounded-md !hover:bg-[#05696b]/90"
-                      btnTitle="Connect Wallet"
+                      connectButton={{
+                        label: "Connect Wallet",
+                        className: "w-full !rounded-md",
+                        style: { backgroundColor: "#05696b", color: "#ffffff", padding: "0rem" }
+                      }}
+                      wallets={[
+                        inAppWallet({ auth: { options: ["email", "google", "apple"] } }),
+                        createWallet("io.metamask"),
+                        createWallet("com.coinbase.wallet"),
+                        createWallet("me.rainbow")
+                      ]}
                       modalTitle="Login to MedFi"
-                      auth={{ loginOptional: false }}
                     />
                   </>
                 )}
