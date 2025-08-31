@@ -59,7 +59,7 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className="border-b border-border bg-white sticky top-0 z-50"
+        className="border-b border-border px-4 md:px-8 bg-white sticky top-0 z-50"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}

@@ -12,7 +12,7 @@ export default function OnboardingModal({ isOpen, onClose }) {
     if (type === 'patient') {
       window.location.href = '/profile/patient-profile'
     } else {
-      window.location.href = '/profile/doctor-profile'
+      window.location.href = '/profile/doctors-profile'
     }
     onClose()
   }
