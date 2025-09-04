@@ -10,9 +10,9 @@ export default function OnboardingModal({ isOpen, onClose }) {
   const handleUserTypeSelect = (type) => {
     setSelectedUserType(type)
     if (type === 'patient') {
-      window.location.href = '/profile/patient-profile'
+      window.location.href = '/personal-profile/patient-profile'
     } else {
-      window.location.href = '/profile/doctors-profile'
+      window.location.href = '/personal-profile/doctors-verification'
     }
     onClose()
   }

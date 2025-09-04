@@ -124,7 +124,7 @@ export default function Profile({ patientData = {}, setIsEditingProfile }) {
         {/* Right column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-xl border bg-white p-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-wide text-gray-500">Appointments</span>

@@ -14,11 +14,11 @@ export default function ProfIndexPage() {
           To view a patient profile, navigate to:
           <br />
           <code className="bg-gray-200 px-2 py-1 rounded text-sm">
-            /profile/prof/[wallet-address]
+            /public-profile/patient-profile/[address]
           </code>
         </p>
         <p className="text-sm text-gray-500">
-          Replace [wallet-address] with the actual wallet address of the patient.
+          Replace [address] with the actual wallet address of the patient.
         </p>
       </div>
     </div>

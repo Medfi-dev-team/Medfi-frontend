@@ -30,14 +30,14 @@ export default function TabContent({
   return (
     <div className="bg-white rounded-xl shadow p-6">
       {/* Tabs Navigation */}
-      <div className="flex gap-6 space-x-1 mb-6">
+      <div className="flex gap-3 flex-wrap md:gap-6 space-x-1 mb-6">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`flex items-center  gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'bg-[#05696b] text-white'
                   : 'text-gray-600 border border-[#05696b] hover:bg-gray-100'
@@ -77,7 +77,7 @@ export default function TabContent({
         <div>
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-gray-800">My Appointments</h3>
-            <Link href='/doctors'> <Button className="flex items-center gap-2 bg-[#05696b] hover:bg-[#05696b]">
+            <Link href='/doctors' className="md:block hidden"> <Button className="flex items-center gap-2 bg-[#05696b] hover:bg-[#05696b]">
               <Plus className="w-4 h-4" />
               Book New Appointment
             </Button></Link>
