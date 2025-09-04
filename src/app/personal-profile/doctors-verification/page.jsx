@@ -6,7 +6,6 @@ import { db } from "@/lib/firebase"
 import { doc, getDoc } from "firebase/firestore"
 import DoctorDashboard from "@/components/doctors/DoctorsOnboarding"
 import DoctorProfile from "../doctors-profile/page"
-import Link from "next/link"
 
 export default function DoctorPortal() {
   // Use ThirdWeb hooks for wallet connection
@@ -66,7 +65,7 @@ export default function DoctorPortal() {
       setVerificationStatus("unverified")
       setDoctorData(null)
     }
-  }, [walletAddress]) // Re-run when wallet address changes
+  }, [walletAddress])  // Re-run when wallet address changes
 
   // Show loading state while checking verification status
   if (loading) {
@@ -75,9 +74,14 @@ export default function DoctorPortal() {
         <div className="text-center max-w-[95%] mx-auto">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#05696b] mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold text-gray-800">Checking verification status...</h2>
-          <p className="text-gray-600 max-w-[90%] mx-auto mt-2">Wallet: {walletAddress || "Connecting..."}</p>
+          <p className="text-gray-600 max-w-[90%] mx-auto mt-2">
+  Wallet: {walletAddress 
+    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` 
+    : "Connecting..."}
+</p>
+
         </div>
-      </div>
+      </div> 
     )
   }
 
@@ -99,7 +103,7 @@ export default function DoctorPortal() {
   return (
     <>
       {verificationStatus === "approved" ? (
-       <Link href='/personal-profile/doctors-profile' > </Link>
+        <DoctorProfile />
       ) : (
         <DoctorDashboard />
       )}

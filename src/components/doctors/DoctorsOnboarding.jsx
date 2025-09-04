@@ -357,7 +357,8 @@ export default function DoctorDashboard() {
             <div>
               <h1 className="text-3xl font-bold text-gray-800">MedFi Doctor Portal</h1>
               <p className="text-gray-600">Your gateway to decentralized healthcare</p>
-              <p className="text-sm text-gray-500 mt-1">Wallet: {address}</p>
+              <p className="text-sm text-gray-500 mt-1 max-w-[90%]">
+              Wallet: {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not connected"}</p>
             </div>
             <div className="text-right flex justify-end items-end flex-col">
               <div className="text-sm text-gray-500 pb-4">Status</div>
@@ -380,7 +381,7 @@ export default function DoctorDashboard() {
 
         {/* Verification Modal */}
         <Dialog open={showVerification} onOpenChange={setShowVerification}>
-          <DialogContent className="md:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="md:max-w-4xl max-h-[90vh] mx-auto overflow-y-auto">
             <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b">
               <DialogTitle className="text-xl pt-4 font-semibold">
                 Professional Verification - Step {verificationStep} of 3
@@ -402,9 +403,9 @@ export default function DoctorDashboard() {
                     Identity Verification
                   </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-1">
                   <div 
-                    className="bg-[#05696b] h-2 rounded-full transition-all duration-500" 
+                    className="bg-[#05696b] h-1 rounded-full transition-all duration-500" 
                     style={{ width: `${(verificationStep / 3) * 100}%` }}
                   ></div>
                 </div>
@@ -780,7 +781,7 @@ export default function DoctorDashboard() {
 
         {/* Success Dialog */}
         <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md mx-auto">
             <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b">
               <DialogTitle className="text-xl font-semibold">
                 Verification Submitted

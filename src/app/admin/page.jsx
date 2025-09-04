@@ -18,10 +18,27 @@ export default function AdminDashboard() {
   const [showDoctorDetails, setShowDoctorDetails] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
   const [selectedImage, setSelectedImage] = useState("")
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false) // Default closed on mobile
   const [doctors, setDoctors] = useState([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true) // Open sidebar on desktop by default
+      } else {
+        setSidebarOpen(false) // Close sidebar on mobile by default
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Load doctors data from Firebase
   useEffect(() => {
@@ -113,70 +130,80 @@ export default function AdminDashboard() {
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
+  const handleSidebarItemClick = (id) => {
+    setActiveTab(id)
+    if (isMobile) {
+      setSidebarOpen(false) // Close sidebar on mobile after selection
+    }
+  }
+
   const renderOverview = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Dashboard Overview</h2>
           <p className="text-gray-600">Monitor and manage the MedFi platform</p>
         </div>
-        <Button onClick={refreshDoctors} variant="outline" disabled={loading}>
+        <div className="flex justify-end items-end">
+
+        <Button onClick={refreshDoctors} variant="outline" disabled={loading} className="w-fit sm:w-auto">
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Doctors</p>
-              <p className="text-2xl font-bold text-gray-800">{doctors.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{doctors.length}</p>
             </div>
-            <Users className="w-8 h-8 text-[#05696b]" />
+            <Users className="w-6 h-6 sm:w-8 sm:h-8 text-[#05696b]" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Pending Verification</p>
-              <p className="text-2xl font-bold text-yellow-600">
+              <p className="text-xl sm:text-2xl font-bold text-yellow-600">
                 {doctors.filter(d => d.status === 'pending').length}
               </p>
             </div>
-            <Clock className="w-8 h-8 text-yellow-600" />
+            <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Approved Doctors</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-xl sm:text-2xl font-bold text-green-600">
                 {doctors.filter(d => d.status === 'approved').length}
               </p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Rejected Applications</p>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-xl sm:text-2xl font-bold text-red-600">
                 {doctors.filter(d => d.status === 'rejected').length}
               </p>
             </div>
-            <XCircle className="w-8 h-8 text-red-600" />
+            <XCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
           </div>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Applications</h3>
         {loading ? (
           <div className="text-center py-8">
@@ -191,9 +218,9 @@ export default function AdminDashboard() {
         ) : (
           <div className="space-y-3">
             {doctors.slice(0, 5).map((doctor) => (
-              <div key={doctor.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden">
+              <div key={doctor.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-gray-50 rounded-lg gap-3">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                     {doctor.profileImage ? (
                       <img src={doctor.profileImage} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
@@ -202,12 +229,12 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-800">Dr. {doctor.firstName} {doctor.lastName}</p>
-                    <p className="text-sm text-gray-600">{doctor.specialty}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-800 truncate">Dr. {doctor.firstName} {doctor.lastName}</p>
+                    <p className="text-sm text-gray-600 truncate">{doctor.specialty}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   {getStatusBadge(doctor.status)}
                   <Button
                     size="sm"
@@ -237,45 +264,49 @@ export default function AdminDashboard() {
 
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Registered Doctors</h2>
             <p className="text-gray-600">Manage doctor verifications and profiles</p>
           </div>
-          <Button onClick={refreshDoctors} variant="outline" disabled={loading}>
+          <Button onClick={refreshDoctors} variant="outline" disabled={loading} className="w-full sm:w-auto">
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b">
-            <div className="flex gap-4">
+          <div className="p-4 sm:p-6 border-b">
+            <div className="flex flex-wrap gap-2 sm:gap-4">
               <Button
                 variant={doctorsTab === "all" ? "default" : "outline"}
                 onClick={() => setDoctorsTab("all")}
-                className={doctorsTab === "all" ? "bg-[#05696b] hover:bg-[#05696b]/90" : ""}
+                className={`text-xs sm:text-sm ${doctorsTab === "all" ? "bg-[#05696b] hover:bg-[#05696b]/90" : ""}`}
+                size="sm"
               >
                 All ({doctors.length})
               </Button>
               <Button
                 variant={doctorsTab === "pending" ? "default" : "outline"}
                 onClick={() => setDoctorsTab("pending")}
-                className={doctorsTab === "pending" ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                className={`text-xs sm:text-sm ${doctorsTab === "pending" ? "bg-yellow-600 hover:bg-yellow-700" : ""}`}
+                size="sm"
               >
                 Pending ({doctors.filter(d => d.status === 'pending').length})
               </Button>
               <Button
                 variant={doctorsTab === "approved" ? "default" : "outline"}
                 onClick={() => setDoctorsTab("approved")}
-                className={doctorsTab === "approved" ? "bg-green-600 hover:bg-green-700" : ""}
+                className={`text-xs sm:text-sm ${doctorsTab === "approved" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                size="sm"
               >
                 Approved ({doctors.filter(d => d.status === 'approved').length})
               </Button>
               <Button
                 variant={doctorsTab === "rejected" ? "default" : "outline"}
                 onClick={() => setDoctorsTab("rejected")}
-                className={doctorsTab === "rejected" ? "bg-red-600 hover:bg-red-700" : ""}
+                className={`text-xs sm:text-sm ${doctorsTab === "rejected" ? "bg-red-600 hover:bg-red-700" : ""}`}
+                size="sm"
               >
                 Rejected ({doctors.filter(d => d.status === 'rejected').length})
               </Button>
@@ -296,10 +327,10 @@ export default function AdminDashboard() {
               </div>
             ) : (
               filteredDoctors.map((doctor) => (
-                <div key={doctor.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden">
+                <div key={doctor.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                         {doctor.profileImage ? (
                           <img src={doctor.profileImage} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
@@ -308,24 +339,24 @@ export default function AdminDashboard() {
                           </div>
                         )}
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-gray-800">
                           Dr. {doctor.firstName} {doctor.lastName}
                         </h3>
                         <p className="text-sm text-gray-600">{doctor.specialty}</p>
-                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {doctor.email}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1 truncate">
+                            <Mail className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{doctor.email}</span>
                           </span>
                           <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
+                            <Phone className="w-3 h-3 flex-shrink-0" />
                             {doctor.phone}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                       {getStatusBadge(doctor.status)}
                       <Button
                         size="sm"
@@ -336,7 +367,8 @@ export default function AdminDashboard() {
                         className="bg-[#05696b] hover:bg-[#05696b]/90"
                       >
                         <Eye className="w-4 h-4 mr-1" />
-                        View Details
+                        <span className="hidden sm:inline">View Details</span>
+                        <span className="sm:hidden">View</span>
                       </Button>
                     </div>
                   </div>
@@ -351,21 +383,34 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile Overlay */}
+        {isMobile && sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 bg-opacity-50 z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-white shadow-sm transition-all duration-300 min-h-screen`}>
+        <div className={`${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${isMobile ? 'fixed' : 'relative'} ${
+          sidebarOpen && !isMobile ? 'w-64' : isMobile ? 'w-64' : 'w-16'
+        } bg-white shadow-lg transition-all duration-300 min-h-screen z-50`}>
           <div className="p-4 border-b">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="flex-shrink-0"
               >
                 <Menu className="w-5 h-5" />
               </Button>
-              {sidebarOpen && (
-                <div>
-                  <h1 className="font-bold text-lg text-[#05696b]">MedFi Admin</h1>
+              {(sidebarOpen || isMobile) && (
+                <div className="min-w-0">
+                  <h1 className="font-bold text-lg text-[#05696b] truncate">MedFi Admin</h1>
                   <p className="text-xs text-gray-500">Dashboard</p>
                 </div>
               )}
@@ -376,96 +421,116 @@ export default function AdminDashboard() {
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => handleSidebarItemClick(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                   activeTab === item.id 
                     ? 'bg-[#05696b] text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                {sidebarOpen && <span className="font-medium">{item.label}</span>}
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {(sidebarOpen || isMobile) && <span className="font-medium truncate">{item.label}</span>}
               </button>
             ))}
           </nav>
 
-          {sidebarOpen && (
-            <div className="absolute w-fit bottom-4 left-4 right-4">
+          {(sidebarOpen || isMobile) && (
+            <div className="absolute bottom-4 left-4 right-4">
               <Button variant="outline" className="w-full justify-start" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                <LogOut className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="truncate">Logout</span>
               </Button>
             </div>
           )}
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {activeTab === "overview" ? "Dashboard Overview" : 
-               activeTab === "doctors" ? "Doctor Management" : "Settings"}
-            </h1>
+        <div className={`flex-1 transition-all duration-300 ${!sidebarOpen && !isMobile ? 'ml-0' : ''}`}>
+          {/* Mobile Header */}
+          <div className="md:hidden bg-white shadow-sm p-4 border-b">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+              <h1 className="font-bold text-lg text-[#05696b]">
+                {activeTab === "overview" ? "Overview" : 
+                 activeTab === "doctors" ? "Doctors" : "Settings"}
+              </h1>
+              <div className="w-10"></div> {/* Spacer for centering */}
+            </div>
           </div>
 
-          {activeTab === "overview" && renderOverview()}
-          {activeTab === "doctors" && renderDoctors()}
-          {activeTab === "settings" && (
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Platform Settings</h2>
-              <p className="text-gray-600">Configure platform settings and preferences.</p>
+          <div className="p-4 sm:p-6">
+            <div className="mb-6 hidden md:block">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                {activeTab === "overview" ? "Dashboard Overview" : 
+                 activeTab === "doctors" ? "Doctor Management" : "Settings"}
+              </h1>
             </div>
-          )}
+
+            {activeTab === "overview" && renderOverview()}
+            {activeTab === "doctors" && renderDoctors()}
+            {activeTab === "settings" && (
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Platform Settings</h2>
+                <p className="text-gray-600">Configure platform settings and preferences.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Doctor Details Modal */}
-      <Dialog open={showDoctorDetails} onOpenChange={setShowDoctorDetails} >
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={showDoctorDetails} onOpenChange={setShowDoctorDetails}>
+        <DialogContent className="md:max-w-5xl max-h-[90vh] mx-auto overflow-y-auto md:mx-4">
           <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b">
-            <DialogTitle className="text-xl font-semibold">Doctor Verification Details</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold">Doctor Verification Details</DialogTitle>
           </DialogHeader>
 
           {selectedDoctor && (
-            <div className="py-6 space-y-8 ">
+            <div className="py-6 space-y-6 sm:space-y-8">
               {/* Header with Status */}
-              <div className="flex  flex-col p-6 bg-gradient-to-r from-[#05696b]/10 to-[#05696b]/5 rounded-xl">
-                <div className="flex items-center gap-6">
+              <div className="flex flex-col p-4 sm:p-6 bg-gradient-to-r from-[#05696b]/10 to-[#05696b]/5 rounded-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                   <div 
-                    className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-white shadow-lg cursor-pointer flex-shrink-0"
                     onClick={() => selectedDoctor.profileImage && openImageModal(selectedDoctor.profileImage)}
                   >
                     {selectedDoctor.profileImage ? (
                       <img src={selectedDoctor.profileImage} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <User className="w-8 h-8 text-gray-400" />
+                        <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                       </div>
                     )}
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-800">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                       Dr. {selectedDoctor.firstName} {selectedDoctor.lastName}
                     </h2>
-                    <p className="text-lg text-[#05696b] font-medium">{selectedDoctor.specialty}</p>
-                    <p className="text-gray-600">{selectedDoctor.hospital}</p>
+                    <p className="text-base sm:text-lg text-[#05696b] font-medium">{selectedDoctor.specialty}</p>
+                    <p className="text-gray-600 text-sm sm:text-base">{selectedDoctor.hospital}</p>
                   </div>
-                </div>
-                <div className="text-right">
-                  {getStatusBadge(selectedDoctor.status)}
-                  <p className="text-xs text-gray-500 mt-1">
-                    Submitted: {selectedDoctor.submittedAt ? new Date(selectedDoctor.submittedAt).toLocaleDateString() : 'N/A'}
-                  </p>
+                  <div className="w-full sm:w-auto text-left sm:text-right">
+                    {getStatusBadge(selectedDoctor.status)}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Submitted: {selectedDoctor.submittedAt ? new Date(selectedDoctor.submittedAt).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Personal Information */}
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5" />
+              <div className="bg-white rounded-xl border p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                   Personal Information
                 </h3>
-                <div className="grid grid-cols-1  gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-600">Full Name</label>
@@ -473,7 +538,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Email Address</label>
-                      <p className="text-gray-800">{selectedDoctor.email}</p>
+                      <p className="text-gray-800 break-all">{selectedDoctor.email}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Phone Number</label>
@@ -487,7 +552,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Wallet Address</label>
-                      <p className="text-gray-800 text-sm font-mono bg-gray-50 p-2 rounded">
+                      <p className="text-gray-800 text-xs sm:text-sm font-mono bg-gray-50 p-2 rounded break-all">
                         {selectedDoctor.walletAddress}
                       </p>
                     </div>
@@ -496,12 +561,12 @@ export default function AdminDashboard() {
               </div>
 
               {/* Professional Information */}
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5" />
+              <div className="bg-white rounded-xl border p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
                   Professional Credentials
                 </h3>
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-600">Medical Specialty</label>
@@ -525,17 +590,17 @@ export default function AdminDashboard() {
                 </div>
                 <div className="mt-4">
                   <label className="text-sm font-medium text-gray-600">Professional Bio</label>
-                  <p className="text-gray-800 mt-1 leading-relaxed">{selectedDoctor.bio}</p>
+                  <p className="text-gray-800 mt-1 leading-relaxed text-sm sm:text-base">{selectedDoctor.bio}</p>
                 </div>
               </div>
 
               {/* Verification Documents */}
-              <div className="bg-white rounded-xl border p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+              <div className="bg-white rounded-xl border p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                   Verification Documents
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div className="text-center">
                     <h4 className="font-medium text-gray-800 mb-3">ID Document & License</h4>
                     {selectedDoctor.idDocument ? (
@@ -546,7 +611,7 @@ export default function AdminDashboard() {
                         <img 
                           src={selectedDoctor.idDocument} 
                           alt="ID Document" 
-                          className="w-full h-32 object-cover rounded mb-2"
+                          className="w-full h-24 sm:h-32 object-cover rounded mb-2"
                         />
                         <Button size="sm" variant="outline">
                           <Eye className="w-4 h-4 mr-1" />
@@ -570,7 +635,7 @@ export default function AdminDashboard() {
                         <img 
                           src={selectedDoctor.selfieImage} 
                           alt="Verification Selfie" 
-                          className="w-full h-32 object-cover rounded mb-2"
+                          className="w-full h-24 sm:h-32 object-cover rounded mb-2"
                         />
                         <Button size="sm" variant="outline">
                           <Eye className="w-4 h-4 mr-1" />
@@ -588,7 +653,7 @@ export default function AdminDashboard() {
 
               {/* Action Buttons */}
               {selectedDoctor.status === 'pending' && (
-                <div className="flex gap-4 pt-6 border-t">
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
                   <Button
                     onClick={() => handleApproval(selectedDoctor.id, 'approved')}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white"
@@ -615,7 +680,7 @@ export default function AdminDashboard() {
 
       {/* Image Modal */}
       <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl mx-4">
           <DialogHeader>
             <DialogTitle>Document View</DialogTitle>
           </DialogHeader>
