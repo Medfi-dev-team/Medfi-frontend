@@ -52,7 +52,7 @@ export default function Header() {
   const navItems = [
     { href: "#services", label: "Services" },
     { href: "#how-it-works", label: "How It Works" },
-    { href: "#professionals", label: "Professionals" },
+    { href: "/doctors", label: "Professionals" },
     { href: "#about", label: "About" }
   ]
 
