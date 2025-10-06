@@ -64,7 +64,7 @@ export default function About() {
       
 
         {/* CTA Section */}
-        <div className="bg-[#05696b] rounded-3xl p-12 text-center text-white mb-16">
+        <div className="bg-[#05696b] rounded-3xl p-12 text-center text-white mb-4">
           <h3 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Experience Decentralized Healthcare?
           </h3>
