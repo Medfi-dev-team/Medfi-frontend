@@ -4,22 +4,20 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation, faStar, faMapMarkerAlt, faPhone, faHospital } from '@fortawesome/free-solid-svg-icons';
-import { CheckCircle, Calendar, Clock, ShieldCheck } from 'lucide-react';
+import { CheckCircle, Calendar, Clock , ShieldCheck} from 'lucide-react';
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
-import { PopupModal } from 'react-calendly';
+
 import Link from 'next/link';
 
 function DoctorsDetails() {
-  const { id } = useParams();
-  const router = useRouter();
+  const { id } = useParams(); // Next.js useParams
+  const router = useRouter(); // Next.js useRouter instead of useNavigate
   const [doctor, setDoctor] = useState(null);
   const [relatedDoctors, setRelatedDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Calendly states
-  const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
-  const [calendlyUrl, setCalendlyUrl] = useState('');
+  const [selectedDate, setSelectedDate] = useState('today');
+  const [selectedTime, setSelectedTime] = useState('');
 
   // Fetch doctor data from Firebase
   useEffect(() => {
@@ -27,6 +25,7 @@ function DoctorsDetails() {
       try {
         setLoading(true);
         
+        // Fetch main doctor data
         const docRef = doc(db, "doctors", id);
         const docSnap = await getDoc(docRef);
         
@@ -34,11 +33,7 @@ function DoctorsDetails() {
           const doctorData = { id: docSnap.id, ...docSnap.data() };
           setDoctor(doctorData);
           
-          // Set Calendly URL - you can store this in doctor's profile
-          const doctorCalendlyUrl = doctorData.calendlyUrl || `https://calendly.com/your-calendly-username`;
-          setCalendlyUrl(doctorCalendlyUrl);
-          
-          // Fetch related doctors
+          // Fetch related doctors (same specialty)
           const doctorsRef = collection(db, "doctors");
           const q = query(
             doctorsRef, 
@@ -67,14 +62,56 @@ function DoctorsDetails() {
     }
   }, [id]);
 
-  // Handle Calendly booking
-  const handleBookAppointment = () => {
-    setIsCalendlyOpen(true);
+  // Generate time slots
+  const generateTimeSlots = () => {
+    const slots = [];
+    const startHour = 8; // 8 AM
+    const endHour = 18; // 6 PM
+    
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeString);
+      }
+    }
+    return slots;
   };
 
-  // Close Calendly modal
-  const handleCalendlyClose = () => {
-    setIsCalendlyOpen(false);
+  const timeSlots = generateTimeSlots();
+
+  // Generate next 7 days
+  const generateDates = () => {
+    const dates = [];
+    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      dates.push({
+        day: days[date.getDay()],
+        date: date.getDate(),
+        month: date.getMonth() + 1,
+        fullDate: date.toISOString().split('T')[0]
+      });
+    }
+    return dates;
+  };
+
+  const dates = generateDates();
+
+  // Handle booking navigation with state
+  const handleBookAppointment = () => {
+    // Using URLSearchParams to pass state in Next.js
+    const params = new URLSearchParams({
+      doctorId: doctor.id,
+      doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+      specialty: doctor.specialty,
+      date: selectedDate,
+      time: selectedTime,
+      fee: doctor.consultationFee || '50'
+    });
+
+    router.push(`/booking?${params.toString()}`);
   };
 
   if (loading) {
@@ -82,7 +119,7 @@ function DoctorsDetails() {
       <div className="md:pt-[13%] pt-[33%]">
         <div className="flex justify-center items-center min-h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#05696b] border-t-transparent mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#0EBE7F] border-t-transparent mx-auto mb-4"></div>
             <p className="text-gray-600">Loading doctor details...</p>
           </div>
         </div>
@@ -101,7 +138,7 @@ function DoctorsDetails() {
           <p className="text-gray-500">The doctor you're looking for is not available.</p>
           <Link 
             href="/doctors"
-            className="mt-4 bg-[#05696b] text-white py-2 px-6 rounded-full hover:bg-[#045a5a] transition-colors inline-block"
+            className="mt-4 bg-[#0EBE7F] text-white py-2 px-6 rounded-full hover:bg-[#0daa70] transition-colors inline-block"
           >
             Browse Doctors
           </Link>
@@ -121,7 +158,7 @@ function DoctorsDetails() {
               <img 
                 src={doctor.profileImage || '/doctor-placeholder.png'} 
                 alt={`Dr. ${doctor.firstName} ${doctor.lastName}`}
-                className='w-64 h-80 rounded-lg object-center object-cover mx-auto'
+                className='w-64 h-80 rounded-lg object-center object-cover  mx-auto'
               />
             </div>
           </div>
@@ -134,8 +171,9 @@ function DoctorsDetails() {
                 <h2 className='font-bold text-2xl text-gray-900'>
                   Dr. {doctor.firstName} {doctor.lastName}
                 </h2>
-                <div className="flex items-center gap-1 text-[#05696b]">
-                  <ShieldCheck className="w-6 h-6 text-white" fill="#05696b" />
+                <div className="flex items-center gap-1 text-[#0EBE7F]">
+                <ShieldCheck className="w-6 h-6 text-white" fill="#05696b" />
+                 
                 </div>
               </div>
 
@@ -205,30 +243,55 @@ function DoctorsDetails() {
             <div className="mt-6">
               <h5 className='font-bold text-lg mb-4'>Book Appointment</h5>
               
-              {/* Calendly Booking Button */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                <Calendar className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Book with {doctor.firstName}'s Calendar
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  View real-time availability and book instantly. Both parties will receive email confirmations and can reschedule if needed.
-                </p>
-                
-                <button 
-                  onClick={handleBookAppointment}
-                  className='text-lg bg-[#05696b] text-white py-3 px-8 rounded-full hover:bg-[#045a5a] transition-colors'
-                >
-                  Book Appointment - ${doctor.consultationFee || '50'}
-                </button>
-                
-                <div className="mt-4 text-sm text-gray-500">
-                  <p>✓ Real-time availability</p>
-                  <p>✓ Automatic email confirmations</p>
-                  <p>✓ Easy rescheduling</p>
-                  <p>✓ No double bookings</p>
+              {/* Date Selection */}
+              <div className="mb-6">
+                <h6 className="font-semibold text-gray-700 mb-3">Select Date</h6>
+                <div className='grid grid-cols-4 md:grid-cols-7 gap-2'>
+                  {dates.map((date, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedDate(date.fullDate)}
+                      className={`border rounded-lg p-3 flex flex-col items-center justify-center gap-1 transition-colors ${
+                        selectedDate === date.fullDate 
+                          ? 'bg-[#05696b] text-white border-[#05696b]' 
+                          : 'text-gray-600 hover:border-[#05696b]'
+                      }`}
+                    >
+                      <span className="text-xs font-medium">{date.day}</span>
+                      <span className="text-sm font-semibold">{date.date}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
+
+              {/* Time Slots */}
+              <div className="mb-6">
+                <h6 className="font-semibold text-gray-700 mb-3">Available Time Slots</h6>
+                <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2'>
+                  {timeSlots.map((time, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedTime(time)}
+                      className={`border rounded-full py-2 px-3 text-sm transition-colors ${
+                        selectedTime === time 
+                          ? 'bg-[#05696b] text-white border-[#05696b]' 
+                          : 'text-gray-600 hover:border-[#05696b]'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Book Button */}
+              <button 
+                onClick={handleBookAppointment}
+                className='text-lg bg-[#05696b] text-white py-3 px-8 rounded-full hover:bg-[#05696b] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
+                disabled={!selectedTime}
+              >
+                Book Appointment - ${doctor.consultationFee || '50'}
+              </button>
             </div>
           </div>
         </div>
@@ -263,6 +326,7 @@ function DoctorsDetails() {
                       <ShieldCheck className="w-6 h-6 text-white" fill="#05696b" />
                     </div>
                     <p className="text-gray-700 text-sm mb-1">{relatedDoctor.specialty}</p>
+                  
                     <div className="flex items-center gap-1 mt-2">
                       <FontAwesomeIcon icon={faStar} className="text-yellow-400 w-3 h-3" />
                       <span className="text-xs font-medium text-gray-700">
@@ -276,24 +340,7 @@ function DoctorsDetails() {
           </div>
         )}
       </div>
-
-      {/* Calendly Modal */}
-      {isCalendlyOpen && (
-        <PopupModal
-          url={calendlyUrl}
-          onModalClose={handleCalendlyClose}
-          rootElement={document.getElementById('__next')}
-          prefill={{
-            name: '', // You can prefill if you have user data
-            email: '', // You can prefill if you have user data
-            customAnswers: {
-              a1: `Doctor: Dr. ${doctor.firstName} ${doctor.lastName}`,
-              a2: `Specialty: ${doctor.specialty}`,
-              a3: `Consultation Fee: $${doctor.consultationFee || '50'}`
-            }
-          }}
-        />
-      )}
+  
     </div>
   );
 }

@@ -1,16 +1,43 @@
 "use client"
 
 import { useState, useEffect } from "react";
+import { useActiveAccount } from "thirdweb/react";
 import Link from "next/link";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
 import { User, Star, CheckCircle,  ShieldCheck } from "lucide-react";
+import Hero from "./Re-usuable-hero/hero";
 
 function AllDoctors() {
+  const activeAccount = useActiveAccount();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [accessWarning, setAccessWarning] = useState("");
+  const [accessStatus, setAccessStatus] = useState(""); // "disconnected" | "unregistered" | "error" | ""
+
+  // Shared categories and mapping to specialties
+  const categories = [
+    "All",
+    "Category 1",
+    "Category 2",
+    "Category 3",
+    "Category 4",
+    "Category 5",
+    "Category 6",
+    "Category 7",
+  ];
+
+  const categoryMap = {
+    "Category 1": "General Physician",
+    "Category 2": "Gynecologist",
+    "Category 3": "Dermatologist",
+    "Category 4": "Pediatrician",
+    "Category 5": "Neurologist",
+    "Category 6": "Gastroenterologist",
+    "Category 7": "Family Medicine",
+  };
 
   // Fetch verified doctors from Firebase
   useEffect(() => {
@@ -37,6 +64,34 @@ function AllDoctors() {
     fetchVerifiedDoctors();
   }, []);
 
+  // Check patient registration on wallet changes
+  useEffect(() => {
+    const verifyPatient = async () => {
+      const address = activeAccount?.address;
+      if (!address) {
+        setAccessWarning("Wallet disconnected. Please connect your wallet to view doctors.");
+        setAccessStatus("disconnected");
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, "patients", address));
+        if (!snap.exists()) {
+          setAccessWarning("This wallet is not registered as a patient. Complete your patient profile to continue.");
+          setAccessStatus("unregistered");
+          return;
+        }
+        setAccessWarning("");
+        setAccessStatus("");
+      } catch (err) {
+        console.error("Error verifying patient:", err);
+        setAccessWarning("Unable to verify patient profile. Please try again or refresh.");
+        setAccessStatus("error");
+      }
+    };
+
+    verifyPatient();
+  }, [activeAccount]);
+
   const handleNavbarClick = (category) => {
     setSelectedCategory(category);
   };
@@ -45,16 +100,7 @@ function AllDoctors() {
   const filteredDoctors = selectedCategory === "All" 
     ? doctors 
     : doctors.filter((doctor) => {
-        // Map your categories to specialties
-        const categoryMap = {
-          "Category 1": "General Physician",
-          "Category 2": "Gynecologist",
-          "Category 3": "Dermatologist",
-          "Category 4": "Pediatrician",
-          "Category 5": "Neurologist",
-          "Category 6": "Gastroenterologist"
-        };
-        return doctor.specialty === categoryMap[category];
+        return doctor.specialty === categoryMap[selectedCategory];
       });
 
   const toggleNavbar = () => {
@@ -75,22 +121,65 @@ function AllDoctors() {
 
   if (loading) {
     return (
-      <div className="md:mx-8 mx-4 pt-[12%] md:pt-[8%]">
-        <div className="px-6 md:px-8 pt-8">
-          <div className="flex justify-center items-center min-h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#0EBE7F] border-t-transparent mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading doctors...</p>
-            </div>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#05696b] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading doctors...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Block content if access is invalid (wallet disconnected or not registered)
+  if (accessWarning) {
+    const title = accessStatus === "disconnected"
+      ? "Wallet Disconnected"
+      : accessStatus === "unregistered"
+        ? "Patient Profile Required"
+        : "Verification Error";
+    const description = accessStatus === "disconnected"
+      ? "Connect your wallet to continue. For your security, doctor listings are only available to authenticated patients."
+      : accessStatus === "unregistered"
+        ? "This wallet doesn't have a patient profile yet. Create your patient profile to access verified doctors."
+        : "We couldn't verify your patient profile right now. Please refresh the page or try again shortly.";
+
+    return (
+      <div className=" flex items-center justify-center pt-16 md:pt-32 px-6">
+        <div className="w-full max-w-xl bg-white  border border-red-100 shadow-sm rounded-lg p-6 text-center">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-6 w-6 text-red-600">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v3m0 3h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            </svg>
           </div>
+          <h2 className="text-xl font-semibold text-red-700">{title}</h2>
+          <p className="mt-2 text-gray-600">{description}</p>
+          <p className="mt-1 text-sm text-gray-500">{accessWarning}</p>
+
+          
+          {accessStatus === "disconnected" && (
+            <p className="mt-3 text-xs text-gray-500">Use the wallet connection button in the header to reconnect.</p>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="md:mx-8 mx-4  pb-14">
+   <div>
+ <Hero 
+        backgroundImage="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjF8fGFmcmljYSUyMG1lZGljYWwlMjBjb25zdWx0YXRpb258ZW58MHx8MHx8fDA%3D"
+        title="Our Doctors"
+        subtitle="Book appointments with verified healthcare professionals"
+        showCTA={false}
+      />
+<div className="md:mx-8 mx-4  pb-14">
+        
       <div className="px-6 md:px-8 pt-8">
+        {accessWarning && (
+          <div className="mb-4 p-4 border border-red-200 bg-red-50 text-red-700 rounded">
+            {accessWarning}
+          </div>
+        )}
         <div className="flex md:flex-row gap-6 flex-col justify-center">
           {/* Sidebar Filters */}
           <nav className="pb-4 pt-10 px-6 bg-white md:px-8 start-0">
@@ -134,69 +223,17 @@ function AllDoctors() {
               id="navbar-sticky"
             >
               <ul className="flex flex-col mt-4 font-medium md:flex-col md:mt-0">
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("All")}
-                    className="block mt-3 border py-2 px-6 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    All Specialties
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 1")}
-                    className="block mt-3 border py-2 px-6 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    General Physician
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 2")}
-                    className="block border py-2 px-6 mt-3 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    Gynecologist
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 3")}
-                    className="block py-2 px-6 mt-3 border text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    Dermatologist
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 4")}
-                    className="block py-2 px-6 border mt-3 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    Pediatricians
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 5")}
-                    className="block py-2 px-6 border mt-3 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    Neurologist
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    onClick={() => handleCombinedClick("Category 6")}
-                    className="block py-2 px-6 border mt-3 text-gray-500 rounded-full hover:bg-gray-100"
-                  >
-                    Gastroenterologist
-                  </a>
-                </li>
+                {categories.map((cat) => (
+                  <li key={cat}>
+                    <button
+                      type="button"
+                      onClick={() => handleCombinedClick(cat)}
+                      className="block mt-3 border py-2 px-6 text-left w-full text-gray-500 rounded-full hover:bg-gray-100"
+                    >
+                      {cat === "All" ? "All Specialties" : categoryMap[cat]}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           </nav>
@@ -267,6 +304,8 @@ function AllDoctors() {
         </div>
       </div>
     </div>
+   </div>
+
   );
 }
 

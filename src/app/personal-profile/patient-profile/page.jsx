@@ -37,7 +37,10 @@ export default function PatientDashboard() {
   // Fetch patient data on component mount
   useEffect(() => {
     const fetchPatientData = async () => {
-      if (!address) return;
+      if (!address) {
+        setLoading(false)
+        return
+      }
       
       try {
         const docRef = doc(db, "patients", address);
@@ -93,6 +96,19 @@ export default function PatientDashboard() {
         </div>
       </div>
     );
+  }
+
+  if (!address) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center px-8 justify-center">
+        <div className="text-center px-6">
+          <p className="text-gray-700">No wallet address found</p>
+
+          <p className="mt-2 text-gray-700">Please connect your wallet to access your patient profile.</p>
+          <p className="mt-2 text-gray-700">Use the wallet connection button in your app header</p>
+        </div>
+      </div>
+    )
   }
 
   return (

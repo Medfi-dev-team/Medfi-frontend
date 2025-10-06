@@ -8,6 +8,9 @@ import { Menu, X, LogOut } from "lucide-react"
 import Image from "next/image"
 import OnboardingModal from "@/components/Onboarding/Onboarding"
 import { client } from "@/app/providers"
+import { useRouter } from "next/navigation"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,6 +20,7 @@ export default function Header() {
   const activeAccount = useActiveAccount()
   const activeWallet = useActiveWallet()
   const { disconnect } = useDisconnect()
+  const router = useRouter()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -49,11 +53,34 @@ export default function Header() {
 
   }
 
+  const handleNavItemClick = async (e, href) => {
+    if (href === "/doctors") {
+      e.preventDefault()
+      if (!activeAccount) {
+        setShowOnboarding(true)
+        return
+      }
+      try {
+        const address = activeAccount.address
+        const snap = await getDoc(doc(db, "patients", address))
+        if (!snap.exists()) {
+          router.push("/personal-profile/patient-profile")
+          return
+        }
+        router.push(href)
+      } catch (err) {
+        console.error("Error checking patient profile:", err)
+        router.push("/")
+      }
+    }
+  }
+
   const navItems = [
-    { href: "#services", label: "Services" },
-    { href: "#how-it-works", label: "How It Works" },
-    { href: "/doctors", label: "Professionals" },
-    { href: "#about", label: "About" }
+    { href: "/", label: "Home" },
+    { href: "/doctors", label: "Doctors" },
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" }
+   
   ]
 
   return (
@@ -76,6 +103,7 @@ export default function Header() {
               <a
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavItemClick(e, item.href)}
                 className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-all duration-500 ease-out group overflow-hidden rounded-lg"
               >
                 <span className="relative z-10 transition-transform duration-300 group-hover:-translate-y-0.5">{item.label}</span>
@@ -170,7 +198,10 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   className="relative block px-4 py-3 text-muted-foreground hover:text-foreground transition-all duration-500 ease-out group overflow-hidden rounded-lg"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={async (e) => {
+                    await handleNavItemClick(e, item.href)
+                    setIsMobileMenuOpen(false)
+                  }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={isMobileMenuOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
