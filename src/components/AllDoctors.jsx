@@ -239,7 +239,7 @@ function AllDoctors() {
           </nav>
 
           {/* Doctors Grid */}
-          <div className="flex-1">
+          <div className="flex-1 md:px-0 px-4">
             {filteredDoctors.length === 0 ? (
               <div className="text-center py-12">
                 <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -254,7 +254,7 @@ function AllDoctors() {
                 </p>
               </div>
             ) : (
-              <div className="image-container mt-4 md:mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="image-container mt-4 md:mt-20  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredDoctors.map((doctor) => (
                   <div
                     className="doctor-hover rounded-lg shadow transition hover:shadow-lg"
