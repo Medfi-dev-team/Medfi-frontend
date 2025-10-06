@@ -174,7 +174,7 @@ function AllDoctors() {
       />
 <div className="md:mx-8 mx-4  pb-14">
         
-      <div className="px-6 md:px-8 pt-8">
+      <div className=" md:px-8 pt-8">
         {accessWarning && (
           <div className="mb-4 p-4 border border-red-200 bg-red-50 text-red-700 rounded">
             {accessWarning}
