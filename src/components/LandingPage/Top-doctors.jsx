@@ -29,14 +29,14 @@ export default function TopDoctors() {
   useEffect(() => {
     const fetchTopDoctors = async () => {
       try {
-        setLoading(true)
-        const doctorsRef = collection(db, "doctors")
+        setLoading(true);
+        const doctorsRef = collection(db, "doctors");
         const q = query(
           doctorsRef, 
           where("status", "==", "approved"),
-          orderBy("createdAt", "desc"), // Get newest doctors first
-          limit(4) // Only get first 4 doctors
-        )
+          // Remove orderBy temporarily to test
+          limit(4)
+        );
         
         const querySnapshot = await getDocs(q)
         const doctorsData = []
@@ -126,34 +126,28 @@ export default function TopDoctors() {
                 variants={fadeInUp}
                 whileHover={{ y: -8, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
+                
               >
                 <Link href={`/doctors/${doctor.id}`}>
                   <Card className="h-full hover:shadow-xl transition-all duration-300 border-border group cursor-pointer overflow-hidden bg-white rounded-lg">
-                    <div className="relative">
+                    <div className="relative ">
                       <img
                         src={doctor.profileImage || "/doctor-placeholder.png"}
                         alt={`Dr. ${doctor.firstName} ${doctor.lastName}`}
-                        className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-60 object-contain   group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
+                         </div>
                     <CardContent className="px-6 pb-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-sm text-green-600 font-medium">Available</span>
+                        <div className="w-2 h-2 bg-[#05696b] rounded-full"></div>
+                        <span className="text-sm text-[#05696b] font-medium">Available</span>
                       </div>
                       <h3 className="text-xl font-serif font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                         Dr. {doctor.firstName} {doctor.lastName}
                       </h3>
                       <p className="text-muted-foreground">{doctor.specialty}</p>
-                      {doctor.hospital && (
-                        <p className="text-sm text-gray-500 mt-1">{doctor.hospital}</p>
-                      )}
-                      {doctor.yearsExperience && (
-                        <p className="text-sm text-gray-500">
-                          {doctor.yearsExperience} years experience
-                        </p>
-                      )}
+                      
+                     
                     </CardContent>
                   </Card>
                 </Link>
@@ -172,12 +166,10 @@ export default function TopDoctors() {
           >
             <Link 
               href="/doctors"
-              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-300"
+              className="inline-flex items-center gap-2 bg-[#05696b] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#05696b]/90 transition-colors duration-300"
             >
               View All Doctors
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              
             </Link>
           </motion.div>
         )}
