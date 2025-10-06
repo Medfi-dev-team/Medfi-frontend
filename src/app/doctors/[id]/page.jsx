@@ -148,7 +148,7 @@ function DoctorsDetails() {
   }
 
   return (
-    <div className='md:pt-[8%] pt-[25%]'>
+    <div className='md:pt-[8%] pt-[15%]'>
       <div className='md:px-8 px-6'>
         {/* Main Doctor Info */}
         <div className='flex items-center md:items-start justify-center md:flex-row flex-col md:gap-8 gap-6'>
@@ -158,7 +158,7 @@ function DoctorsDetails() {
               <img 
                 src={doctor.profileImage || '/doctor-placeholder.png'} 
                 alt={`Dr. ${doctor.firstName} ${doctor.lastName}`}
-                className='w-64 h-80 rounded-lg object-center object-cover  mx-auto'
+                className='w-64 h-60 md:h-80 rounded-lg object-center object-cover  mx-auto'
               />
             </div>
           </div>
