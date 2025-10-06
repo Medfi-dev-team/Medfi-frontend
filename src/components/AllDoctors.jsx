@@ -192,7 +192,7 @@ function AllDoctors() {
               <button
                 type="button"
                 onClick={toggleNavbar}
-                className="inline-flex items-center p-2 w-30 h-100 border justify-center text-sm text-gray-100 rounded-lg md:hidden bg-[#0EBE7F] focus:outline-none focus:ring-0 focus:ring-gray-200"
+                className="inline-flex items-center p-2 w-30 h-fit border justify-center text-sm text-gray-100 rounded-lg md:hidden bg-[#05696b] focus:outline-none focus:ring-0 focus:ring-gray-200"
                 aria-controls="navbar-sticky"
                 aria-expanded={isOpen}
               >
