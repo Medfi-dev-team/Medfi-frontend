@@ -148,7 +148,7 @@ function DoctorsDetails() {
   }
 
   return (
-    <div className='md:pt-[8%] pt-[33%]'>
+    <div className='md:pt-[8%] pt-[25%]'>
       <div className='md:px-8 px-6'>
         {/* Main Doctor Info */}
         <div className='flex items-center md:items-start justify-center md:flex-row flex-col md:gap-8 gap-6'>
